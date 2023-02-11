@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+</head>
+<style >
+    body {
+        background-color: gray;
+    }
+    .container {
+
+        display: flex;
+        /* justify-content: center;
+        align-items: center;
+        height: 700px; */
+
+    }
+</style>
+<body>
+    <div class="container">
+       
+        <canvas id="canvas" width="960px" height="540px" style="border: solid;"></canvas>
+        
+    </div>
+</body>
+<script>
+    const cnv = document.querySelector("canvas");
+    const ctx = cnv.getContext("2d");
+
+
+    let icons = 4;      //counter gia icons
+    let k = 0;          //counter gia to sprite sheet
+    let state = 1;  //1 = play
+    let time;
+    let score=0;
+
+
+    let pipeArr = [];
+    pipeArr[0] = { x: cnv.width, y: 350 };
+
+    let bgX = 0;
+    let bgSpeed = 2;
+    let bg = new Image();
+    bg.src = "bg.png";
+    bg.onload = start();
+
+
+    const birdWidth = 49.2;   // to srite image einai 405 width exei 8 animation ara kanw 405/8=50.6 gia na parw to prwto animation
+    const birdHeight = 50;   //  to sprie image height
+    let birdY=0;
+    let bird = new Image();
+    bird.src = "bird.png";
+    bird.onload = start()
+
+
+    let pipe = new Image();
+    pipe.src = "pipe.png";
+    pipe.onload = start();
+
+    let pipeTop = new Image();
+    pipeTop.src="pipeTop.png";
+    pipeTop.onload = start();
+
+
+
+    function start(){
+        --icons;
+        if (icons == 0) {
+            gameLoop();
+        }
+    }
+
+    
+    function gameLoop(){
+        if(state ==1) {
+            requestAnimationFrame(gameLoop)
+            drawBg();
+            drawBird();
+            drawPipes();
+        }
+        else {
+            ctx.fillStyle = "#FF0000";
+            ctx.font = "50px Tahoma";
+            ctx.fillText("Game over!", 350, cnv.height / 2)
+        }
+            // let now = Date.now();
+            // if (now - time < 50) {
+            //     return;
+            // }
+            // time = now;
+    }
+
+
+    function drawBg() {
+        ctx.drawImage(bg,bgX,0,cnv.width,cnv.height);
+        ctx.drawImage(bg,bgX+cnv.width,0,cnv.width,cnv.height);
+        bgX -= bgSpeed;
+        if (bgX += cnv.width) {
+            bgX -= cnv.width;
+        }
+    }
+
+    document.body.onkeydown = function (evt) {
+            if (evt.key === "ArrowUp") {
+                birdY -= 10;
+                evt.preventDefault();
+            }
+            else if (evt.key === "ArrowDown") {
+                birdY += 10;
+                evt.preventDefault();
+            }
+    }
+
+    function drawBird() {
+        ctx.drawImage(bird,birdWidth*k,0,birdWidth,birdHeight,0,birdY,birdWidth,birdHeight);
+        k = (k+1) % 5;
+    }
+
+    function drawPipes() {
+        let kappa = getRandom(870,940)
+        let gap = 530;
+
+        //  SMURFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        for(let i=0; i<pipeArr.length; i++) {
+            ctx.drawImage(pipe, pipeArr[i].x, pipeArr[i].y, 40, 440);
+            ctx.drawImage(pipeTop, pipeArr[i].x, pipeArr[i].y-gap , 40, 440);
+
+            pipeArr[i].x-=2;
+            if(pipeArr[i].x == 740) {
+                pipeArr.push({
+                    x:960,
+                    y:getRandom(100,450)
+                })
+            }
+
+            // rectangular collision detection
+            if (0+birdWidth >= pipeArr[i].x && 0 <= pipeArr[i].x+40 && (birdY+birdHeight >= pipeArr[i].y+17 || birdY <= pipeArr[i].y-gap+440-9)) {  
+                // we have collision 
+
+                // location.reload();
+                state=0;
+            
+                // state = 0;
+            } 
+            //score increment
+            if(pipeArr[i].x == 6) {
+                score++;
+            }
+            
+        }
+        //Score canvas
+        ctx.fillStyle = "#000";
+        ctx.font = "20px Tahoma";
+        ctx.fillText("Score: " +score,10,cnv.height-20)
+
+
+        
+
+    }
+
+    function getRandom(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+
+</script>
+</html>
